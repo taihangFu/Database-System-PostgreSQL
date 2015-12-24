@@ -1,0 +1,6 @@
+select (s.code || ' ' ||s.name) as subject  , count(*) as nOfferings
+from courses c left join coursestaff cs on cs.course = c.id
+	                join subjects s on c.subject = s.id	                
+group by s.id
+having count(*) > 30 and every(cs.staff is NULL)
+;

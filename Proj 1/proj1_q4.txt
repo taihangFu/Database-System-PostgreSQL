@@ -1,0 +1,44 @@
+select q3(p.term), count(*) 
+from programenrolments p, terms t
+where p.term = t.id
+and t.year >= 2005
+and (t.sess = 'S1' or t.sess ='S2')
+group by p.term ;
+
+select q3(p.term), count(*) 
+from programenrolments p, terms t, students s
+where p.term = t.id
+and t.year >= 2005
+and (t.sess = 'S1' or t.sess ='S2')
+and p.student = s.id
+and s.stype = 'intl'
+group by p.term ;
+
+create or replace view Q4_intl(term, count)
+as
+select q3(p.term), count(*) 
+from programenrolments p, terms t, students s
+where p.term = t.id
+and t.year >= 2005
+and (t.sess = 'S1' or t.sess ='S2')
+and p.student = s.id
+and s.stype = 'intl'
+group by p.term ;
+
+;
+
+create or replace view Q4_total(term, count)
+as
+select q3(p.term), count(*) 
+from programenrolments p, terms t
+where p.term = t.id
+and t.year >= 2005
+and (t.sess = 'S1' or t.sess ='S2')
+group by p.term ;
+;
+
+
+select i.term, (cast(i.count as float) / cast(t.count as float))::numeric(4,2) as percent
+from q4_intl i, q4_total t
+where i.term = t.term
+;

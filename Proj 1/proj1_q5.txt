@@ -1,0 +1,46 @@
+select q3(t.id), count(distinct(ce.student)) 
+from courseenrolments ce, courses c, terms t, subjects s
+where ce.course = c.id 
+and c.subject = s.id
+and c.term = t.id
+and (t.year >= 2000 and t.year<=2010)
+and (t.sess = 'S1' or t.sess = 'S2')
+group by t.id
+;
+
+
+select term, sum(sum)::numeric(6,1) as FTE
+from
+(select q3(t.id) as term, ce.student, sum(cast(s.uoc as float))/24 as sum
+from courseenrolments ce, courses c, terms t, subjects s
+where ce.course = c.id 
+and c.subject = s.id
+and c.term = t.id
+and (t.year >= 2000 and t.year<=2010)
+and (t.sess = 'S1' or t.sess = 'S2')
+group by t.id, ce.student
+) as view
+group by term
+;
+
+select F.term, N.nstudes, F.FTE
+from
+(select q3(t.id) as term, (sum(cast(s.uoc as float))/24)::numeric(6,1) as FTE
+from courseenrolments ce, courses c, terms t, subjects s
+where ce.course = c.id 
+and c.subject = s.id
+and c.term = t.id
+and (t.year >= 2000 and t.year<=2010)
+and (t.sess = 'S1' or t.sess = 'S2')
+group by t.id) as F
+,
+(select q3(t.id) as term, count(distinct(ce.student)) as nstudes
+from courseenrolments ce, courses c, terms t, subjects s
+where ce.course = c.id 
+and c.subject = s.id
+and c.term = t.id
+and (t.year >= 2000 and t.year<=2010)
+and (t.sess = 'S1' or t.sess = 'S2')
+group by t.id) as N
+where F.term = N.term
+;
